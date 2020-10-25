@@ -25,7 +25,8 @@ def main(hostname, token, interface):
         payload = {"type":"AAAA","name":hostname.split(".")[0],"data":ipv6,"id":host_id,"zoneID":zone_id}
         header = {"Authorization": "Bearer {}".format(token), "Accept": "application/json"}
         r = requests.patch(url, data=payload, headers=header)
-        print(r.status_code)
+        if r.status_code == 200:
+            print("Record for {} changed to {}".format(hostname, ipv6))
     else:
         print("Nothing todo. IPv6 unchanged!")
 
