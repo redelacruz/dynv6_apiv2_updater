@@ -8,7 +8,6 @@ import ipaddress
 @click.option('--token', prompt=True, hide_input=True)
 @click.option('--interface', default='eth0')
 def main(hostname, token, interface):
-    #hostname = hostname.split('.')[0]
     addresses = netifaces.ifaddresses(interface)
     ipv6 = addresses[netifaces.AF_INET6]    
     for ip in ipv6:
@@ -23,7 +22,7 @@ def main(hostname, token, interface):
     #only update if there is a new IPv6 
     if ipaddress.IPv6Address(record_ip) != ipaddress.IPv6Address(ipv6) and zone_id and host_id:
         url = "https://dynv6.com/api/v2/zones/{0}/records/{1}".format(zone_id, host_id)
-        payload = {"type":"AAAA","name":hostname,"data":ipv6,"id":host_id,"zoneID":zone_id}
+        payload = {"type":"AAAA","name":hostname.split(".")[0],"data":ipv6,"id":host_id,"zoneID":zone_id}
         header = {"Authorization": "Bearer {}".format(token), "Accept": "application/json"}
         r = requests.patch(url, data=payload, headers=header)
         print(r.status_code)
