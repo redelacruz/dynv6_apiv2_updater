@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import click
 import netifaces
 import requests
@@ -5,9 +8,13 @@ import ipaddress
 
 @click.command()
 @click.argument('hostname')
-@click.option('--token', prompt=True, hide_input=True)
-@click.option('--interface', default='eth0')
+@click.option('-t', '--token', prompt=True, hide_input=True, help='DynV6 HTTP token', metavar='TOKEN')
+@click.option('-i', '--interface', default='eth0', help='An interface providing global IPv6 addresses to update HOSTNAME', metavar='INTERFACE')
+@click.option('--all-records', is_flag=True, help='Update all resource records for a given HOSTNAME')
+#TODO: --manual-ipv4, is_flag=True, help='Update all A resource records independently of the primary zone record, overriding DynV6 auto-set records. Can be used with --all-records.'
+
 def main(hostname, token, interface):
+    """Update the DynV6 zone records of HOSTNAME."""
     addresses = netifaces.ifaddresses(interface)
     
     # get current zone addresses
@@ -35,7 +42,7 @@ def main(hostname, token, interface):
         except ipaddress.AddressValueError:
             pass
     
-    # update if there is a new IPv4
+    # update if there is a new ipv4
     if ipaddress.IPv4Address(record_ipv4) != ipaddress.IPv4Address(ipv4):
         url = "https://dynv6.com/api/v2/zones/{0}".format(zone_id)
         
@@ -68,6 +75,9 @@ def main(hostname, token, interface):
     else:
         print("IPv6 address unchanged. No action taken.")
 
+# TODO: get primary zone records
+
+# get a resource record for a given hostname
 def get_zone_host_data(token, hostname, r_type = "AAAA"):
     zones = ""
     host_id = ""
